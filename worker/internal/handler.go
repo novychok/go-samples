@@ -39,10 +39,8 @@ func (h *Handler) Execute(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			// fmt.Println(object)
 			objectChan <- object
 		}()
-
 	}
 
 	go func() {
@@ -67,7 +65,6 @@ func (h *Handler) Execute(w http.ResponseWriter, r *http.Request) {
 }
 
 func getObject(objID int) (types.Object, error) {
-
 	url := fmt.Sprintf("http://localhost:9010/objects/%d", objID)
 	resp, err := http.Get(url)
 	if err != nil {
@@ -83,14 +80,12 @@ func getObject(objID int) (types.Object, error) {
 }
 
 func getObjectIds(r *http.Request) (*types.ObjectsIDs, error) {
-	var err error
-
 	var objIds types.ObjectsIDs
-	if err = json.NewDecoder(r.Body).Decode(&objIds); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&objIds); err != nil {
 		return nil, fmt.Errorf("failed to decode object ids | err: %s", err)
 	}
 	if len(objIds.ID) == 0 {
-		return nil, fmt.Errorf("get [%d] id's from objectIds: %s", len(objIds.ID), err)
+		return nil, fmt.Errorf("get [%d] id's from objectIds", len(objIds.ID))
 	}
 
 	return &objIds, nil

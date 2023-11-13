@@ -1,5 +1,5 @@
 run:
-	sudo docker compose up --remove-orphans --build
+	sudo docker compose up  --build
 
 build-master:
 	@go build -o ./bin/master/master ./cmd/master/*.go
