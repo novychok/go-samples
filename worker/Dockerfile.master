@@ -1,0 +1,11 @@
+FROM golang:1.21.1
+
+COPY . /go/src/app
+
+WORKDIR /go/src/app/cmd/master
+
+RUN go build -o master main.go
+
+EXPOSE 9010
+
+CMD ["./master"]

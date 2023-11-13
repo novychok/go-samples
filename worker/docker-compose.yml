@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+
+  postgresql:
+    restart: always
+    image: postgres:latest
+    ports:
+      - 5436:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    # valomes:
+    #   - ./internal/pg/data:/var/lib/postgresql/data
+  
+  
+  master:
+    build:
+      context: ./
+      dockerfile: Dockerfile.master
+    container_name: master
+    ports:
+      - "9010:9010"
+    environment:
+      HTTP_ADDR: ":9010"
+    command: []
+
+  worker:
+    build:
+      context: ./
+      dockerfile: Dockerfile.worker
+    container_name: worker
+    ports:
+      - "9090:9090"
+    environment:
+      HTTP_ADDR: ":9090"
+      PG_URL: "postgres://postgres:postgres@postgres/postgres?sslmode=disable"
+    command: []

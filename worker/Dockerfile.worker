@@ -1,0 +1,11 @@
+FROM golang:1.21.1
+
+COPY . /go/src/app
+
+WORKDIR /go/src/app/cmd/worker
+
+RUN go build -o worker main.go
+
+EXPOSE 9090
+
+CMD ["./worker"]

@@ -3,11 +3,3 @@ Write a rest-service that listens on localhost:9090 for POST requests on /callba
 Store all objects in a PostgreSQL database along with a timestamp when the object was last seen. Let your service delete objects in the database when they have not been received for more than 30 seconds.
 
 Important: due to business constraints we are not allowed to miss any callback to our service. Write code in such a way that all errors are properly recovered and that the endpoint is always available. Optimize for very high throughput so that this service could work in production.
-
-# TODO
-1. REST Service | Port = :9090
-2. handler on path http://localhost:9090/callback
-3. Retrerieve data ({ "object_ids": [1,2,3,4,5,6] } ) from Master (every 5 seconds) (1-200 ids)
-4. Get every object id
-5. Filter it by status
-6. Save in PostgreSQL with timestamp
