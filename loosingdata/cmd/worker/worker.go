@@ -13,7 +13,7 @@ import (
 func main() {
 	listenAddr := ":8100"
 
-	http.HandleFunc("/data", internal.HandleLoosingData)
+	http.HandleFunc("/data", internal.HandleGetData)
 
 	go func() { log.Fatal(http.ListenAndServe(listenAddr, nil)) }()
 

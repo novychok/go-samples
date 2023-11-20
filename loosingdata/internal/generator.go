@@ -5,9 +5,12 @@ import (
 	"encoding/hex"
 	"math/rand"
 	"sync"
+	"time"
 
 	"github.com/novychok/go-samples/loosingdata/types"
 )
+
+var solt = "qwerty"
 
 func GenerateData() []*types.Data {
 	wg := sync.WaitGroup{}
@@ -15,15 +18,31 @@ func GenerateData() []*types.Data {
 
 	dataSl := make([]*types.Data, 0, count)
 	dataCh := make(chan *types.Data, count)
+	tickerCh := make(chan time.Time)
 
 	wg.Add(count)
 	for i := 0; i < count; i++ {
 		go func() {
 			defer wg.Done()
 			text := randText()
-			data := types.NewData(text)
+			hashText := createHash(text, solt)
+			data := types.NewData(text, hashText)
 
-			dataCh <- data
+			// Create fraud and truth text for Data
+			go func() {
+				for {
+					randomTicker := time.NewTicker(500 + time.Duration(rand.Intn(1000))*time.Millisecond)
+					t := <-randomTicker.C
+					tickerCh <- t
+				}
+			}()
+			select {
+			case <-tickerCh:
+				dataCh <- data
+			case <-time.After(500 * time.Millisecond):
+				data.Text = randText()
+				dataCh <- data
+			}
 		}()
 	}
 
@@ -58,12 +77,7 @@ func randText() string {
 	return string(letsl)
 }
 
-func Encode(text string) string {
-	hash := md5.Sum([]byte(text))
-	return string(hash[:])
-}
-
-func Decode(text string) string {
-	hash := hex.EncodeToString([]byte(text))
-	return hash
+func createHash(text, solt string) string {
+	textHash := md5.Sum([]byte(text + solt))
+	return hex.EncodeToString(textHash[:])
 }
