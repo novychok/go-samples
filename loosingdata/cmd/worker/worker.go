@@ -13,7 +13,18 @@ import (
 func main() {
 	listenAddr := ":8100"
 
-	http.HandleFunc("/data", internal.HandleGetData)
+	db, err := internal.SetupBbolt()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	repo := internal.NewBolt(db)
+	handler := internal.NewHandler(repo)
+
+	http.HandleFunc("/data", handler.HandleGetData)
+	http.HandleFunc("/fraud_data", handler.HandleGetFraudData)
+	http.HandleFunc("/fraud_data/:id", handler.HandleGetFraudDataByID)
 
 	go func() { log.Fatal(http.ListenAndServe(listenAddr, nil)) }()
 
