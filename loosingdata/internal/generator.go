@@ -24,14 +24,14 @@ func GenerateData() []*types.Data {
 	for i := 0; i < count; i++ {
 		go func() {
 			defer wg.Done()
-			text := randText()
-			hashText := createHash(text, solt)
-			data := types.NewData(text, hashText)
+			msg := randMsg()
+			msgHash := createHash(msg, solt)
+			data := types.NewData(msg, msgHash)
 
-			// Create fraud and truth text for Data
+			// Create fraud and truth Data
 			go func() {
 				for {
-					randomTicker := time.NewTicker(500 + time.Duration(rand.Intn(1000))*time.Millisecond)
+					randomTicker := time.NewTicker(500 + time.Duration(rand.Intn(500))*time.Millisecond)
 					t := <-randomTicker.C
 					tickerCh <- t
 				}
@@ -39,8 +39,8 @@ func GenerateData() []*types.Data {
 			select {
 			case <-tickerCh:
 				dataCh <- data
-			case <-time.After(500 * time.Millisecond):
-				data.Text = randText()
+			case <-time.After(300 * time.Millisecond):
+				data.Message = randMsg()
 				dataCh <- data
 			}
 		}()
@@ -57,27 +57,28 @@ func GenerateData() []*types.Data {
 	return dataSl
 }
 
-// RandText function generates random string using rand.Intn function
+// randMsg function generates random string using rand.Intn function
 // to generate numbers from 65-90 and 97-122 to represend ASCII Table characters.
-func randText() string {
-	strLen := 10 + rand.Intn(19)
-	letsl := make([]rune, strLen)
+func randMsg() string {
+	msgLen := 10 + rand.Intn(19)
+	msgSl := make([]rune, 0, msgLen)
 
-	for i := 0; i < strLen; i++ {
+	for i := 0; i < msgLen; i++ {
 		uppercase := (int32)(65 + rand.Intn(25))
 		lowercase := (int32)(97 + rand.Intn(25))
 		upOrNot := rand.Intn(2)
 
 		if upOrNot == 1 {
-			letsl = append(letsl, uppercase)
+			msgSl = append(msgSl, uppercase)
 			continue
 		}
-		letsl = append(letsl, lowercase)
+		msgSl = append(msgSl, lowercase)
 	}
-	return string(letsl)
+	return string(msgSl)
 }
 
-func createHash(text, solt string) string {
-	textHash := md5.Sum([]byte(text + solt))
-	return hex.EncodeToString(textHash[:])
+// createHash creates hash from message + solt strings
+func createHash(msg, solt string) string {
+	msgHash := md5.Sum([]byte(msg + solt))
+	return hex.EncodeToString(msgHash[:])
 }

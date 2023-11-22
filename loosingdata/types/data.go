@@ -3,15 +3,15 @@ package types
 import "github.com/google/uuid"
 
 type Data struct {
-	ID       uuid.UUID `json:"id"`
-	Text     string    `json:"text"`
-	TextHash string    `json:"text_hash"`
+	ID          uuid.UUID `json:"id"`
+	Message     string    `json:"message"`
+	MessageHash string    `json:"message_hash"`
 }
 
-func NewData(text, textHash string) *Data {
+func NewData(msg, msgHash string) *Data {
 	return &Data{
-		ID:       uuid.New(),
-		Text:     text,
-		TextHash: textHash,
+		ID:          uuid.New(),
+		Message:     msg,
+		MessageHash: msgHash,
 	}
 }
