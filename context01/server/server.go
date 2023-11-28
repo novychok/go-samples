@@ -7,8 +7,10 @@ import (
 	"time"
 )
 
+type userId string
+
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(nil)
 	defer cancel()
 
 	if err := userRegistration(ctx); err != nil {
@@ -18,15 +20,16 @@ func main() {
 
 func userRegistration(ctx context.Context) error {
 	id := 1 + rand.Intn(5)
-	ctx = context.WithValue(ctx, "userId", id)
 
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	// userId = "userId"
+
+	ctx, cancel := context.WithTimeout(context.WithValue(ctx, "userId", id), 2*time.Second)
 	defer cancel()
 
 	select {
 	case <-ctx.Done():
 		return fmt.Errorf("time is up for registration: %v", ctx.Err())
-	case <-time.After(1 * time.Second):
+	case <-time.After(3 * time.Second):
 		msg := fmt.Sprintf("registration for userId[%d] is done, proceed user login\n", id)
 		if err := userLogin(ctx, msg); err != nil {
 			return err
