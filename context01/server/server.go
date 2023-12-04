@@ -21,8 +21,6 @@ func main() {
 func userRegistration(ctx context.Context) error {
 	id := 1 + rand.Intn(5)
 
-	// userId = "userId"
-
 	ctx, cancel := context.WithTimeout(context.WithValue(ctx, "userId", id), 2*time.Second)
 	defer cancel()
 
