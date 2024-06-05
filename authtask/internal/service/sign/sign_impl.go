@@ -58,7 +58,7 @@ func (s *srv) SignIn(ctx context.Context, signIn *entity.SignIn) (string, error)
 		return "", err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(signIn.Password), []byte(user.PasswordHash)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(signIn.Password)); err != nil {
 		l.ErrorContext(ctx, "Failed while compare hash password", "err", errors.New("invalid password"))
 		return "", errors.New("invalid password")
 	}
