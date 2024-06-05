@@ -1,0 +1,20 @@
+FROM golang:1.22
+
+WORKDIR /
+
+COPY . .
+
+ENV LOCAL_ADDR=8081 \
+    TOKEN_SECRET=asjdjwqdsajbdwjdjwd \
+    TOKEN_EXPIRATION=15 \
+    TOKEN_MIN=m \
+    PASSWORD_COST=10 \
+    COOKIE_NAME=admin_jwt \
+    COOKIE_EXPIRATION=15 \
+    COOKIE_MIN=m
+
+RUN CGO_ENABLED=1 go build -o bookapi ./cmd/bookapi/main.go
+
+EXPOSE 8081
+
+CMD ["./bookapi"]

@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  nats-server:
+    image: nats:latest
+    container_name: nats-container
+    command: ["--jetstream"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - ./nats-server.conf:/etc/nats/nats-server.conf
+    networks:
+      - realtime
+
+  bookapi:
+    image: ghcr.io/realtime/bookapi
+    build:
+      context: .
+      dockerfile: Dockerfile.bookapi
+    ports:
+      - "3310-3312:3380"
+    environment:
+      BOOKAPI_ADDR: 3380
+    networks:
+      - realtime
+    depends_on:
+      - nats-server  
+    deploy:
+      replicas: 3
+    volumes:
+      - /root/nats-config/realtime.db:/realtime.db
+      - /var/run/docker.sock:/var/run/docker.sock 
+
+  websocketapi:
+    image: ghcr.io/reailtime/websocketapi
+    build:
+      context: .
+      dockerfile: Dockerfile.websocketapi
+    ports:
+      - "2210-2212:3381"
+    environment:
+      WEBSCOKETAPI_ADDR: 3381  
+    networks:
+      - realtime
+    depends_on:
+      - nats-server
+      - bookapi
+    deploy:
+      replicas: 3
+    volumes:
+      - /root/nats-config/realtime.db:/realtime.db
+      - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+  realtime:
+    name: realtime
