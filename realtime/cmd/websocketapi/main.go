@@ -40,7 +40,7 @@ func main() {
 	repository := bookrepo.NewPostgres(db)
 
 	bookService := book.New(slogger, natsClient, repository)
-	realtimeService := realtime.New()
+	realtimeService := realtime.New(repository)
 
 	bookapiHandler := bookapi.New(bookService)
 	websocketapiHandler := websocketapi.New(realtimeService)
