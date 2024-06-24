@@ -21,7 +21,7 @@ func (h *Handler) CreateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdBook, err := h.bookapiService.Create(r.Context(), &bookRequest)
+	bookId, err := h.bookapiService.Create(r.Context(), &bookRequest)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("can't create the book: %s", err.Error()), http.StatusInternalServerError)
 		return
@@ -29,7 +29,7 @@ func (h *Handler) CreateBook(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(createdBook.ID))
+	w.Write([]byte(fmt.Sprintf("%d", bookId)))
 }
 
 func New(bookapiService service.Books) *Handler {

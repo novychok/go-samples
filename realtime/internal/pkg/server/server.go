@@ -40,7 +40,7 @@ func (s *Server) Start() error {
 
 	router.HandleFunc("POST /api/v1/books", s.bookApiHandler.CreateBook)
 
-	router.HandleFunc("GET /api/v1/ws/", s.websocketApiHandler.WebscocketHandler)
+	router.HandleFunc("GET /api/v1/ws", s.websocketApiHandler.WebscocketHandler)
 
 	if err := s.NatsStart(); err != nil {
 		log.Println(err)
@@ -66,8 +66,6 @@ func (s *Server) NatsStart() error {
 	if err != nil {
 		log.Println(err)
 	}
-
-	fmt.Println(hostname)
 
 	consumer, err := stream.CreateOrUpdateConsumer(ctx, jetstream.ConsumerConfig{
 		Durable:   hostname,

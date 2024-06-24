@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:latest
+    container_name: realtime_db
+    environment:
+      POSTGRES_DB: realtime
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - realtime  
+
   nats-server:
     image: nats:latest
     container_name: nats-container
@@ -22,6 +34,11 @@ services:
       - "3310-3312:3380"
     environment:
       BOOKAPI_ADDR: 3380
+      POSTGRES_DB: realtime
+      REALTIME_PGHOST: realtime_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      REALTIME_PGSSLMODE: disable
     networks:
       - realtime
     depends_on:
@@ -41,6 +58,11 @@ services:
       - "2210-2212:3381"
     environment:
       WEBSCOKETAPI_ADDR: 3381  
+      POSTGRES_DB: realtime
+      REALTIME_PGHOST: realtime_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      REALTIME_PGSSLMODE: disable
     networks:
       - realtime
     depends_on:

@@ -2,41 +2,41 @@ package book
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/novychok/go-samples/realtime/internal/entity"
+	"github.com/novychok/go-samples/realtime/internal/repository"
 	"github.com/novychok/go-samples/realtime/internal/service"
 )
 
 type srv struct {
 	l          *slog.Logger
 	natsClient jetstream.JetStream
+	repo       repository.Book
 }
 
-func (s *srv) Create(ctx context.Context, book *entity.Book) (*entity.Book, error) {
+func (s *srv) Create(ctx context.Context, book *entity.Book) (int, error) {
 
-	byteCollectionDataID := book.ID
-	_, err := s.natsClient.Publish(ctx, "collections.update", []byte(byteCollectionDataID))
+	bookId, err := s.repo.Create(ctx, book)
 	if err != nil {
-		s.l.ErrorContext(ctx, "failed to publish a message", "err", err)
-		return nil, err
+		return 0, err
 	}
 
-	return book, nil
+	_, err = s.natsClient.Publish(ctx, "collections.update", []byte(fmt.Sprintf("%d", bookId)))
+	if err != nil {
+		s.l.ErrorContext(ctx, "failed to publish a message", "err", err)
+		return 0, err
+	}
+
+	return bookId, nil
 }
 
-func (s *srv) FindAll(ctx context.Context) ([]*entity.Book, error) {
-	panic("implement me")
-}
-
-func (s *srv) GetByID(ctx context.Context, id string) (*entity.Book, error) {
-	panic("implement me")
-}
-
-func New(l *slog.Logger, natsClient jetstream.JetStream) service.Books {
+func New(l *slog.Logger, natsClient jetstream.JetStream, repo repository.Book) service.Books {
 	return &srv{
 		l:          l,
 		natsClient: natsClient,
+		repo:       repo,
 	}
 }

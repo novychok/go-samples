@@ -7,7 +7,5 @@ import (
 )
 
 type Books interface {
-	FindAll(ctx context.Context) ([]*entity.Book, error)
-	Create(ctx context.Context, book *entity.Book) (*entity.Book, error)
-	GetByID(ctx context.Context, id string) (*entity.Book, error)
+	Create(ctx context.Context, book *entity.Book) (int, error)
 }

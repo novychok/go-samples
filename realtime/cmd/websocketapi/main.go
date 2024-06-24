@@ -4,13 +4,15 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/novychok/go-samples/realtime/internal/config"
 	"github.com/novychok/go-samples/realtime/internal/handler/bookapi"
 	natsHandler "github.com/novychok/go-samples/realtime/internal/handler/nats"
 	"github.com/novychok/go-samples/realtime/internal/handler/websocketapi"
 	log "github.com/novychok/go-samples/realtime/internal/pkg/log"
 	nats "github.com/novychok/go-samples/realtime/internal/pkg/nats"
-
+	"github.com/novychok/go-samples/realtime/internal/pkg/postgres"
 	"github.com/novychok/go-samples/realtime/internal/pkg/server"
+	bookrepo "github.com/novychok/go-samples/realtime/internal/repository/book"
 	"github.com/novychok/go-samples/realtime/internal/service/book"
 	"github.com/novychok/go-samples/realtime/internal/service/realtime"
 )
@@ -28,7 +30,16 @@ func main() {
 	}
 	defer cleanup()
 
-	bookService := book.New(slogger, natsClient)
+	psqlConfig := config.New()
+	db, cleanupdb, err := postgres.New(psqlConfig.PostgresConfig)
+	if err != nil {
+		slogger.Error(fmt.Sprintf("error to start psql database: %s", err.Error()))
+	}
+	defer cleanupdb()
+
+	repository := bookrepo.NewPostgres(db)
+
+	bookService := book.New(slogger, natsClient, repository)
 	realtimeService := realtime.New()
 
 	bookapiHandler := bookapi.New(bookService)
